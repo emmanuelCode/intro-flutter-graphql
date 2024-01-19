@@ -30,40 +30,40 @@
       <google-codelab-step label="Getting Started" duration="0">
         <h2 is-upgraded>Things to keep in mind</h2>
 <ul>
-<li>This codelabs was tested with ubuntu in mind using the Terminal. For mac and windows, see their respective equivalent.</li>
+<li>This codelabs was tested with Ubuntu in mind using the Terminal. For Mac and Windows, see their respective equivalent.</li>
 <li>The IDE I&#39;ve used for this codelab is VSCode, some extensions or plugins I may use not be available on other IDEs.</li>
-<li>This is my own codelab, I am not part of google nor I have been endorsed by them.</li>
+<li>This is my own codelab, I am not part of Google nor I have been endorsed by them.</li>
 </ul>
 <h2 class="checklist" is-upgraded>What you&#39;ll learn</h2>
 <ul class="checklist">
 <li>✅ Build your local GraphQL server.</li>
 <li>✅ Build and run test queries on the server.</li>
-<li>✅ Build a flutter app that connect and make requests to the server.</li>
+<li>✅ Build a Flutter app that connect and make requests to the server.</li>
 </ul>
 <h2 is-upgraded>Prerequises</h2>
 <ol type="1">
 <li>A bit of Flutter knowledge. The Flutter team <a href="https://docs.flutter.dev/get-started/codelab" target="_blank">codelabs</a> and the <a href="https://docs.flutter.dev/cookbook" target="_blank">cookbook</a> should help you get started.</li>
-<li>Knowledge of <a href="https://riverpod.dev" target="_blank">riverpod</a> and the <a href="https://pub.dev/packages/freezed" target="_blank">freezed</a> packages. I do cover them a bit in this <a href="https://dev.to/emmanuel_code/my-journey-to-flutter-mvi-design-pattern-2o0-temp-slug-837591?preview=9f4214532dfdce3f87d5317b385c73c9a75b00b3bd1e68fd4b756732dba2c32b504eb3574a2c27d3520b65be76f452debaec452ead1bf6223879d558" target="_blank">article</a>.</li>
+<li>Knowledge of <a href="https://riverpod.dev" target="_blank">Riverpod</a> and the <a href="https://pub.dev/packages/freezed" target="_blank">Freezed</a> packages. I do cover them a bit in this <a href="https://dev.to/emmanuel_code/my-journey-to-flutter-mvi-design-pattern-2o0-temp-slug-837591?preview=9f4214532dfdce3f87d5317b385c73c9a75b00b3bd1e68fd4b756732dba2c32b504eb3574a2c27d3520b65be76f452debaec452ead1bf6223879d558" target="_blank">article</a>.</li>
 <li>A bit a <a href="https://graphql.org/learn/" target="_blank">GraphQL</a> knowledge but not required for this codelab.</li>
 </ol>
-<aside class="warning"><p> At the time of writting riverpod is currently updating their docs, I recommend using the latest <a href="https://docs-v2.riverpod.dev/" target="_blank">riverpod V2</a></p>
+<aside class="warning"><p> At the time of writting riverpod is currently updating their docs, I recommend using the latest <a href="https://docs-v2.riverpod.dev/" target="_blank">Riverpod V2</a></p>
 </aside>
 <h2 is-upgraded>GraphQL</h2>
 <p>GraphQL is a query language to structure and manage your backend server. It consist of having a schema file (<code>shema.graphql</code>) which is the rules and instructions that your server will need to abide by. Your schema file will also help you define what your client application (which in our case the flutter app) can request of it.</p>
-<p>There are many <a href="https://graphql.org/code/#services" target="_blank">graphql services</a> available and each have their own methods to launch your own server but we will use Dgraph, the main reason is because it native backend build from the ground up for GraphQL. It&#39;s not build on top an already exiting database which most of them do. That what make up for speed and performance.</p>
+<p>There are many <a href="https://graphql.org/code/#services" target="_blank">Graphql services</a> available and each have their own methods to launch your own server but we will use Dgraph, the main reason is because it a native backend build from the ground up for GraphQL. It&#39;s not build on top an already exiting database which most of them do. That what make up for speed and performance.</p>
 
 
       </google-codelab-step>
     
       <google-codelab-step label="Dgraph" duration="0">
-        <p>To start your Dgraph server you&#39;ll need to install the <a href="https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository" target="_blank">docker engine</a>.</p>
-<p>Once installed, open a termimal and run <code>sudo docker pull dgraph/standalone:latest</code> to download image. Then run <code>sudo docker run --rm -it -p 8080:8080 -p 9080:9080 dgraph/standalone:latest</code> to start the server.</p>
+        <p>To start your Dgraph server you&#39;ll need to install the <a href="https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository" target="_blank">Docker engine</a>.</p>
+<p>Once installed, open a termimal and run <code>sudo docker pull dgraph/standalone:latest</code> to download image. Then run <code>sudo docker run -it -p 8080:8080 dgraph/standalone:latest</code> to start the server.</p>
 <p>Two endpoints will be avalaible to you:</p>
 <ul>
 <li><code>http://localhost:8080/admin</code></li>
 <li><code>http://localhost:8080/graphql</code></li>
 </ul>
-<p>The admin endpoint is where you will upload your graphql schema. The graphql endpoint is where we send queries to the server to get a response.</p>
+<p>The admin endpoint is where you will upload your GraphQL schema. The GraphQL endpoint is where we send queries to the server to get a response.</p>
 <p>Before sending queries you&#39;ll need to have a schema, open a new termimal and create a new file in your desired location then <code>touch schema.graphql</code> then <code>nano schema.graphql</code> and copy this schema to your file and save it:</p>
 <pre><code language="language-graphql" class="language-graphql">type User {
   id: ID!
@@ -73,7 +73,7 @@
 </code></pre>
 <p>To push your schema to the admin endpoint, you&#39;ll need to install curl <code>sudo apt install curl</code> then run <code>curl -X POST localhost:8080/admin/schema --data-binary '@schema.graphql'</code>. If it works, you should see the output <code>{"data":{"code":"Success","message":"Done"}}</code>.</p>
 <p>The schema you pushed to the server is small but a lot is happening to the backend. First of all, the schema we send is not the actual schema. Dgraph generated the real schema, it added all the boilerplate code to all of your possible queries using the <code>User</code> type. The only thing you need to worry is to build types.</p>
-<aside class="special"><p> If you&#39;re curious to know what Dgraph generated for you, you can request it by running <code>curl "http://localhost:8080/admin"   -H "Content-Type: application/json"   --data-binary '{"query":"{\n getGQLSchema {\n generatedSchema\n }\n}","variables":{}}'   --compressed</code>. You&#39;ll have to format the json to make it readable. When you&#39;ll be making your flutter queries it might be a good idea to have it. It will help you know what response you can retrieve or queries to set.</p>
+<aside class="special"><p> If you&#39;re curious to know what Dgraph generated for you, you can request it by running <code>curl "http://localhost:8080/admin"   -H "Content-Type: application/json"   --data-binary '{"query":"{\n getGQLSchema {\n generatedSchema\n }\n}","variables":{}}'   --compressed</code>. You&#39;ll have to format the json to make it readable. When you&#39;ll be making your GraphQL queries in Flutter, it might be a good idea to have it. It will help you know what response you can retrieve or queries to set.</p>
 </aside>
 <p>To explain the schema file, we created a <code>User</code> type that will hold an <code>id</code>, a <code>name</code> and a <code>description</code>. Next to the &#34;:&#34; is the object type and &#34;!&#34; means that it can&#39;t be null. So if we need to add a user for example, I will need to provides these variables with the exception of <code>description</code> that is nullable. Also, the <code>ID</code> type is also generated for you when adding a <code>User</code> so you don&#39;t actually need to specify one.</p>
 
@@ -84,7 +84,7 @@
         <p>In GraphQL, when writting queries they are three root types <code>mutation</code>, <code>query</code> and <code>subscription</code>. The <code>mutation</code> is everything that writing to the database with &#34;add/delete/update&#34;, <code>query</code> is about reading the database &#34;get&#34; and <code>subscription</code> is for realtime long lasting notification results.</p>
 <p>The Dgraph server is running and your sample schema is uploaded. You can now make some queries and mutations. To summarize the following, you&#39;ll use a http tool to write your requests in GraphQL and see the results. This will help you with the Flutter app when sending requests later.</p>
 <h2 is-upgraded>Testing your query code</h2>
-<p>We will be using the thunderclient extension to test our server. In VSCode search the extension and install it. <img alt="install_thunderclient" src="img/2d38205830978c59.png"></p>
+<p>We will be using the Thunderclient extension to test our server. In VSCode search the extension and install it. <img alt="install_thunderclient" src="img/2d38205830978c59.png"></p>
 <p>Click on the thunder logo, then on &#34;New Request&#34;. Change the &#34;Get&#34; dropdown to &#34;Post&#34;. Replace <code>https://www.thunderclient.com/welcome</code> with your GraphQL endpoint <code>http://localhost:8080/graphql</code>. Under the link, Change the tab &#34;Query&#34; to &#34;Body&#34;. Another row of tabs should be visible then choose tab &#34;Graphql&#34;. Your setup should look like this. <img alt="setup_thunderclient" src="img/1cfe866cc73722e4.png"></p>
 <p>You are now ready! We will test four GraphQL queries (3 <code>mutation</code> and 1 <code>query</code>) to prepare our Flutter app. Once you write the request in the &#34;Query&#34; box you can click &#34;Send&#34; to receive the json response for each query. You can also format the query you wrote above the &#34;Query&#34; box.</p>
 <ul>
@@ -147,12 +147,12 @@
       </google-codelab-step>
     
       <google-codelab-step label="The Flutter App (Preparations)" duration="0">
-        <p>You tested your queries against the GraphQL server using thunderclient. You are now ready to build your Flutter app that will connect to the local server.</p>
+        <p>You tested your queries against the GraphQL server using Thunderclient. You are now ready to build your Flutter app that will connect to the local server.</p>
 <table>
 <tr><td colspan="2" rowspan="1"><p>This is the app you will build, each request type are in tabs and when you tap on the button you will see the request you did on the bottom half of the screen depending on what you enter in the text fields:</p>
 </td><td colspan="1" rowspan="1"></td></tr>
-<tr><td colspan="1" rowspan="1"><p class="image-container"><img alt="graphql_sample_01" src="img/7a70de833ffb61b8.png"></p>
-</td><td colspan="1" rowspan="1"><p class="image-container"><img alt="graphql_sample_02" src="img/b7940189ebdc7edc.png"></p>
+<tr><td colspan="1" rowspan="1"><p class="image-container"><img alt="graphql_sample_01" src="img/12002e06f90f7a23.png"></p>
+</td><td colspan="1" rowspan="1"><p class="image-container"><img alt="graphql_sample_02" src="img/8c82ffee0aef412c.png"></p>
 </td></tr>
 </table>
 <p>This will be the folder structure for the app starting from lib:</p>
@@ -172,9 +172,9 @@
 </code></pre>
 <p>You will start by adding all the dependencies for riverpod and freezed, copy this line and add it to the Terminal:</p>
 <p><code>flutter pub add flutter_riverpod riverpod_annotation freezed_annotation json_annotation && flutter pub add -d build_runner custom_lint riverpod_generator riverpod_lint freezed json_serializable</code></p>
-<p>The &#34;graphql&#34; folder in your file structure will contains the queries you tested in the thunderclient extension. However, in order for the Flutter app to read those queries you need to add variables on top, so Flutter can pass those values. Here you&#39;ll need to know your Dgraph autogenerated types but the generated pattern is the same in whatever type you create in your schema. This will be queries in each file:</p>
+<p>The &#34;graphql&#34; folder in your file structure will contains the queries you tested in the Thunderclient extension. However, in order for the Flutter app to read those queries you need to add variables on top, so Flutter can pass those values. Here you&#39;ll need to know your Dgraph autogenerated types but the generated pattern is the same in whatever type you create in your schema. This will be queries in each file:</p>
 <p><img alt="vscode_client_queries" src="img/7b55051b3e4fb1e9.png"> The &#34;$variableName&#34; will be the name that you will use in your dart code to pass the values for your requests.</p>
-<p>Your graphql files will serve as assets in your code to read the string, so you must declare the assets at the end of your <code>pubspec.yaml</code> file :</p>
+<p>Your GraphQL files will serve as assets in your code to read the string, so you must declare the assets at the end of your <code>pubspec.yaml</code> file :</p>
 <pre><code language="language-yaml" class="language-yaml">  assets:
     - lib/graphql/
 </code></pre>
@@ -237,9 +237,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: &#39;Flutter Demo&#39;,
+      title: &#39;Flutter GraphQL Demo&#39;,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: const HomeView(),
     );
@@ -252,7 +252,7 @@ class MyApp extends StatelessWidget {
       </google-codelab-step>
     
       <google-codelab-step label="Building The Model" duration="0">
-        <p>Now that you got the client setup in a provider, you can now start building the model using the freezed annotation and riverpod annotation for the state notifier. Add the following code in your <code>user.dart</code>:</p>
+        <p>Now that you got the client setup in a provider, you can now start building the model using the <code>@freezed</code> annotation and <code>@riverpod</code> annotation for the state notifier. Add the following code in your <code>user.dart</code>:</p>
 <pre><code language="language-dart" class="language-dart">import &#39;package:flutter/foundation.dart&#39;;
 import &#39;package:flutter/services.dart&#39;;
 import &#39;package:freezed_annotation/freezed_annotation.dart&#39;;
@@ -466,7 +466,7 @@ class UserQueries extends _$UserQueries {
 }
 
 </code></pre>
-<p>For the freezed annotation part, you declare the id, name and the nullable description(If you remember previously in your graphql schema, you had a nullable String type). Then added the <code>fromJson</code> to parse your json from the graphql requests.</p>
+<p>For the <code>@freezed</code> annotation part, you declare the id, name and the nullable description(If you remember previously in your graphql schema, you had a nullable String type). Then added the <code>fromJson</code> to parse your json from the graphql requests.</p>
 <aside class="warning"><p> Don&#39;t forget to run <code>flutter pub run build_runner build -d</code> to build your generated code from the annotions or <code>flutter pub run build_runner watch -d</code> to listen for code changes each time.</p>
 </aside>
 <aside class="special"><p> It may be a good idea to exclude the analysis warnings from the generated code. You can do it by adding this code at the end of your <code>analysis_options.yaml</code> file:</p>
@@ -477,13 +477,13 @@ analyzer:
     - &#34;**/*.g.dart&#34;
     - &#34;**/*.freezed.dart&#34;
 </code></pre>
-<p>If I explain the code from the riverpod annotation by taking the &#34;addUser&#34; method as example. You loaded the graphql file into a string. You create and intialize a <code>MutationOptions</code> variable, <code>QueryOptions</code> if getting the <code>User</code>. In the <code>MutationOptions</code> arguments. You create a graphql document by passing your string to ‘gql&#39; special function. Then in your variables, you pass the json values to prepare for your request. In this case, that would be your name and description variable. When that part over, you can then call the request with <code>client.mutate</code> or <code>client.query</code> if getting the <code>User</code> passing along your options. Then you listen the results wether it is loading or having an exception. Finally you parse the json data with <code>userJson</code> and generate your <code>User</code> model that you will pass as your new state.</p>
+<p>If I explain the code from the <code>@riverpod</code> annotation by taking the &#34;addUser&#34; method as example. You loaded the GraphQL query file into a string. You create and intialize a <code>MutationOptions</code> variable, <code>QueryOptions</code> if getting the <code>User</code>. In the <code>MutationOptions</code> arguments. You create a GraphQL document by passing your string to ‘gql&#39; special function. Then in your variables, you pass the json values to prepare for your request. In this case, that would be your name and description variable. When that part over, you can then call the request with <code>client.mutate</code> or <code>client.query</code> if getting the <code>User</code> passing along your options. Then you listen the results wether it is loading or having an exception. Finally you parse the json data with <code>userJson</code> and generate your <code>User</code> model that you will pass as your new state.</p>
 
 
       </google-codelab-step>
     
       <google-codelab-step label="Adding The Widgets" duration="0">
-        <p>Now that you added your model, you can now link the widgets with riverpod. Add the following in the files:</p>
+        <p>Now that you added your model, you can now link the widgets with Riverpod. Add the following in the files:</p>
 <ul>
 <li><code>user_form_fields.dart</code>:</li>
 </ul>
@@ -607,6 +607,7 @@ class HomeView extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(&#39;GraphQL Sample&#39;),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           bottom: TabBar(
             tabs: queryNames
                 .map((name) =&gt; Tab(

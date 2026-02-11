@@ -30,9 +30,9 @@
       <google-codelab-step label="Getting Started" duration="0">
         <h2 is-upgraded>Things to keep in mind</h2>
 <ul>
-<li>This codelabs was tested with Ubuntu in mind using the Terminal. For Mac and Windows, see their respective equivalent.</li>
-<li>The IDE I&#39;ve used for this codelab is VSCode, some extensions or plugins I may use not be available on other IDEs.</li>
-<li>This is my own codelab, I am not part of Google nor I have been endorsed by them.</li>
+<li>This codelabs was tested with Linux in mind using the Terminal. For Mac and Windows, see their respective equivalent.</li>
+<li>The IDE I used for this codelab is VS Code; some extensions or plugins I used might not be available on other IDEs.</li>
+<li>This is my own codelab; I am not affiliated with Google, nor have I been endorsed by them.</li>
 </ul>
 <h2 class="checklist" is-upgraded>What you&#39;ll learn</h2>
 <ul class="checklist">
@@ -43,21 +43,19 @@
 <h2 is-upgraded>Prerequises</h2>
 <ol type="1">
 <li>A bit of Flutter knowledge. The Flutter team <a href="https://docs.flutter.dev/get-started/codelab" target="_blank">codelabs</a> and the <a href="https://docs.flutter.dev/cookbook" target="_blank">cookbook</a> should help you get started.</li>
-<li>Knowledge of <a href="https://riverpod.dev" target="_blank">Riverpod</a> and the <a href="https://pub.dev/packages/freezed" target="_blank">Freezed</a> packages. I do cover them a bit in this <a href="https://dev.to/emmanuel_code/my-journey-to-flutter-mvi-design-pattern-2o0-temp-slug-837591?preview=9f4214532dfdce3f87d5317b385c73c9a75b00b3bd1e68fd4b756732dba2c32b504eb3574a2c27d3520b65be76f452debaec452ead1bf6223879d558" target="_blank">article</a>.</li>
+<li>Knowledge of <a href="https://riverpod.dev" target="_blank">Riverpod</a> and the <a href="https://pub.dev/packages/freezed" target="_blank">Freezed</a> packages. I do cover them a bit in this <a href="https://dev.to/emmanuel_code/implementing-the-mvi-design-pattern-in-flutter-a-journey-toward-scalable-state-management-250e" target="_blank">article</a>.</li>
 <li>A bit a <a href="https://graphql.org/learn/" target="_blank">GraphQL</a> knowledge but not required for this codelab.</li>
 </ol>
-<aside class="warning"><p> At the time of writting riverpod is currently updating their docs, I recommend using the latest <a href="https://docs-v2.riverpod.dev/" target="_blank">Riverpod V2</a></p>
-</aside>
 <h2 is-upgraded>GraphQL</h2>
-<p>GraphQL is a query language to structure and manage your backend server. It consist of having a schema file (<code>shema.graphql</code>) which is the rules and instructions that your server will need to abide by. Your schema file will also help you define what your client application (which in our case the flutter app) can request of it.</p>
+<p>GraphQL is a query language to structure and manage your backend server. It consist of having a schema file (<code>schema.graphql</code>) which is the rules and instructions that your server will need to abide by. Your schema file will also help you define what your client application (which in our case the flutter app) can request of it.</p>
 <p>There are many <a href="https://graphql.org/code/#services" target="_blank">Graphql services</a> available and each have their own methods to launch your own server but we will use Dgraph, the main reason is because it a native backend build from the ground up for GraphQL. It&#39;s not build on top an already exiting database which most of them do. That what make up for speed and performance.</p>
 
 
       </google-codelab-step>
     
       <google-codelab-step label="Dgraph" duration="0">
-        <p>To start your Dgraph server you&#39;ll need to install the <a href="https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository" target="_blank">Docker engine</a>.</p>
-<p>Once installed, open a termimal and run <code>sudo docker pull dgraph/standalone:latest</code> to download image. Then run <code>sudo docker run -it -p 8080:8080 dgraph/standalone:latest</code> to start the server.</p>
+        <p>To start your Dgraph server you&#39;ll need to install the <a href="https://docs.docker.com/engine/install/" target="_blank">Docker engine</a>.</p>
+<p>Once installed, open a termimal and enter <code>docker run --name dgraph-dev -d -p 8080:8080 -p 9080:9080 -v ~/dgraph:/dgraph dgraph/standalone:latest</code> to download image and start the server. To make sure it&#39;s was installed you can run ‘curl -s http://localhost:8080/health&#39; which should show &#34;healty&#34; meaning that it&#39;s running</p>
 <p>Two endpoints will be avalaible to you:</p>
 <ul>
 <li><code>http://localhost:8080/admin</code></li>
@@ -71,7 +69,7 @@
   description: String
 }
 </code></pre>
-<p>To push your schema to the admin endpoint, you&#39;ll need to install curl <code>sudo apt install curl</code> then run <code>curl -X POST localhost:8080/admin/schema --data-binary '@schema.graphql'</code>. If it works, you should see the output <code>{"data":{"code":"Success","message":"Done"}}</code>.</p>
+<p>To push your schema to the admin endpoint, you&#39;ll need to install <a href="https://everything.curl.dev/install/linux.html" target="_blank">curl</a> eg:<code>sudo apt install curl</code> then run <code>curl -X POST localhost:8080/admin/schema --data-binary '@schema.graphql'</code>. If it works, you should see the output <code>{"data":{"code":"Success","message":"Done"}}</code>.</p>
 <p>The schema you pushed to the server is small but a lot is happening to the backend. First of all, the schema we send is not the actual schema. Dgraph generated the real schema, it added all the boilerplate code to all of your possible queries using the <code>User</code> type. The only thing you need to worry is to build types.</p>
 <aside class="special"><p> If you&#39;re curious to know what Dgraph generated for you, you can request it by running <code>curl "http://localhost:8080/admin"   -H "Content-Type: application/json"   --data-binary '{"query":"{\n getGQLSchema {\n generatedSchema\n }\n}","variables":{}}'   --compressed</code>. You&#39;ll have to format the json to make it readable. When you&#39;ll be making your GraphQL queries in Flutter, it might be a good idea to have it. It will help you know what response you can retrieve or queries to set.</p>
 </aside>
@@ -171,7 +169,21 @@
  ┗ 📜main.dart
 </code></pre>
 <p>You will start by adding all the dependencies for riverpod and freezed, copy this line and add it to the Terminal:</p>
-<p><code>flutter pub add flutter_riverpod riverpod_annotation freezed_annotation json_annotation && flutter pub add -d build_runner custom_lint riverpod_generator riverpod_lint freezed json_serializable</code></p>
+<p><code>flutter pub add flutter_riverpod riverpod_annotation freezed_annotation json_annotation && flutter pub add -d build_runner riverpod_generator freezed json_serializable</code></p>
+<aside class="special"><p> It may be a good idea to enable <code>riverpod_lint</code> for riverpod rule syntax.You can do it by adding this code at the end of your <code>analysis_options.yaml</code> file which is located in the root of your project:</p>
+</aside>
+<pre><code language="language-yaml" class="language-yaml">include: package:flutter_lints/flutter.yaml
+
+linter:
+
+  rules:
+
+analyzer:
+
+# add riverpod plugin here
+plugins:
+  riverpod_lint: ^3.1.2
+</code></pre>
 <p>The &#34;graphql&#34; folder in your file structure will contains the queries you tested in the Thunderclient extension. However, in order for the Flutter app to read those queries you need to add variables on top, so Flutter can pass those values. Here you&#39;ll need to know your Dgraph autogenerated types but the generated pattern is the same in whatever type you create in your schema. This will be queries in each file:</p>
 <p><img alt="vscode_client_queries" src="img/7b55051b3e4fb1e9.png"> The &#34;$variableName&#34; will be the name that you will use in your dart code to pass the values for your requests.</p>
 <p>Your GraphQL files will serve as assets in your code to read the string, so you must declare the assets at the end of your <code>pubspec.yaml</code> file :</p>
@@ -210,7 +222,7 @@ return GraphQLClient(
 }
 
 </code></pre>
-<aside class="warning"><p> By default Android devices cannot link to localhost while running the app. In order for localhost to work you must enabled it via adb command <code>adb reverse tcp:8080 tcp:8080</code>. You may need to run this command again if you receive client send errors from the logs. Also make sure your device is connected via USB.</p>
+<aside class="warning"><p> By default Android devices cannot link to localhost eg:<code>http://localhost:8080/graphql</code> while running the app. In order for localhost to work you must enabled it via adb command <code>adb reverse tcp:8080 tcp:8080</code>. You may need to run this command again if you receive client send errors from the logs. Also make sure your device is connected via USB.</p>
 </aside>
 <p>In the <code>main.dart</code> file, you will declare your provider for your graphql client. Here what main will look like:</p>
 <pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
@@ -227,7 +239,7 @@ void main() {
 }
 
 @riverpod
-GraphQLClient graphQLClient(GraphQLClientRef ref) {
+GraphQLClient graphQLClient(Ref ref) {
   return graphQLClientInit();
 }
 
@@ -241,10 +253,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const HomeView(),
+      home: const UserView(),
     );
   }
 }
+
 
 </code></pre>
 
@@ -257,7 +270,7 @@ class MyApp extends StatelessWidget {
 import &#39;package:flutter/services.dart&#39;;
 import &#39;package:freezed_annotation/freezed_annotation.dart&#39;;
 // hide the JsonSerializable as there is a library conflict with json_annotation
-import &#39;package:graphql/client.dart&#39; hide JsonSerializable;
+import &#39;package:graphql/client.dart&#39; hide JsonSerializable; 
 import &#39;package:graphql_sample/main.dart&#39;;
 import &#39;package:riverpod_annotation/riverpod_annotation.dart&#39;;
 
@@ -266,7 +279,7 @@ part &#39;user.freezed.dart&#39;;
 part &#39;user.g.dart&#39;;
 
 @freezed
-class User with _$User {
+abstract class User with _$User {
   const factory User({
     required String id,
     required String name,
@@ -279,97 +292,85 @@ class User with _$User {
 @riverpod
 class UserQueries extends _$UserQueries {
   late final GraphQLClient client;
-  String? status;
-
+  
+  // this uses dart record syntax to return multiple values
+  // see: https://dart.dev/language/records
   @override
-  User build() {
+  Future&lt;({User user, String status})&gt; build() async {
     client = ref.read(graphQLClientProvider);
-    return const User(id: &#39;null&#39;, name: &#39;null&#39;, description: &#39;null&#39;);
+    return (
+      user: const User(id: &#39;null&#39;, name: &#39;null&#39;, description: &#39;null&#39;),
+      status: &#39;Initial&#39;
+    );
   }
 
   Future&lt;void&gt; addUser({required String name, String? description}) async {
-    final addUserMutation =
-        await rootBundle.loadString(&#39;lib/graphql/add_user.graphql&#39;);
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final addUserMutation =
+          await rootBundle.loadString(&#39;lib/graphql/add_user.graphql&#39;);
 
-    final MutationOptions options = MutationOptions(
-      document: gql(addUserMutation),
-      variables: &lt;String, dynamic&gt;{
-        // the variable put here must match the query variable ($user)
-        &#39;user&#39;: {
-          &#39;name&#39;: name,
-          &#39;description&#39;: description,
-        }
-      },
-    );
+      final MutationOptions options = MutationOptions(
+        document: gql(addUserMutation),
+        variables: &lt;String, dynamic&gt;{
+          // the variable put here must match the query variable ($user)
+          &#39;user&#39;: {
+            &#39;name&#39;: name,
+            &#39;description&#39;: description,
+          }
+        },
+      );
 
-    final QueryResult result = await client.mutate(options);
+      final QueryResult result = await client.mutate(options);
 
-    if (result.isLoading &amp;&amp; result.data != null) {
-      status = &#39;Loading&#39;;
-    }
+      if (result.hasException) {
+        debugPrint(result.exception.toString());
+        throw result.exception!;
+      }
 
-    if (result.hasException) {
-      debugPrint(result.exception.toString());
-      status = &#39;Error (See Logs)&#39;;
-    }
+      debugPrint(&#39;ADD USER: ${result.data}&#39;);
 
-    debugPrint(&#39;ADD USER: ${result.data}&#39;);
+      final userJson = result.data?[&#39;addUser&#39;][&#39;user&#39;][0];
 
-    final userJson = result.data?[&#39;addUser&#39;][&#39;user&#39;][0];
+      debugPrint(&#39;ADD USER TRIM DOWN: $userJson&#39;);
 
-    debugPrint(&#39;ADD USER TRIM DOWN: $userJson&#39;);
-
-    final User user = User.fromJson(userJson);
-
-    status = &#39;Added User&#39;;
-
-    state = state.copyWith(
-      id: user.id,
-      name: user.name,
-      description: user.description,
-    );
+      final user = User.fromJson(userJson);
+      return (user: user, status: &#39;Added User&#39;);
+    });
   }
 
   Future&lt;void&gt; deleteUser({required String id}) async {
-    final deleteUserMutation =
-        await rootBundle.loadString(&#39;lib/graphql/delete_user.graphql&#39;);
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final deleteUserMutation =
+          await rootBundle.loadString(&#39;lib/graphql/delete_user.graphql&#39;);
 
-    final MutationOptions options = MutationOptions(
-      document: gql(deleteUserMutation),
-      variables: &lt;String, dynamic&gt;{
-        // the variable put here must match the query variable ($filter)
-        &#39;filter&#39;: {
-          &#39;id&#39;: id,
-        }
-      },
-    );
+      final MutationOptions options = MutationOptions(
+        document: gql(deleteUserMutation),
+        variables: &lt;String, dynamic&gt;{
+          // the variable put here must match the query variable ($filter)
+          &#39;filter&#39;: {
+            &#39;id&#39;: [id],
+          }
+        },
+      );
 
-    final QueryResult result = await client.mutate(options);
+      final QueryResult result = await client.mutate(options);
 
-    if (result.isLoading &amp;&amp; result.data != null) {
-      status = &#39;Loading&#39;;
-    }
+      if (result.hasException) {
+        debugPrint(result.exception.toString());
+        throw result.exception!;
+      }
 
-    if (result.hasException) {
-      debugPrint(result.exception.toString());
-      status = &#39;Error (See Logs)&#39;;
-    }
+      debugPrint(&#39;DELETE USER: ${result.data}&#39;);
 
-    debugPrint(&#39;DELETE USER: ${result.data}&#39;);
+      final userJson = result.data?[&#39;deleteUser&#39;][&#39;user&#39;][0];
 
-    final userJson = result.data?[&#39;deleteUser&#39;][&#39;user&#39;][0];
+      debugPrint(&#39;DELETE USER TRIM DOWN: $userJson&#39;);
 
-    debugPrint(&#39;DELETE USER TRIM DOWN: $userJson&#39;);
-
-    final User user = User.fromJson(userJson);
-
-    status = &#39;Deleted User&#39;;
-
-    state = state.copyWith(
-      id: user.id,
-      name: user.name,
-      description: user.description,
-    );
+      final user = User.fromJson(userJson);
+      return (user: user, status: &#39;Deleted User&#39;);
+    });
   }
 
   Future&lt;void&gt; updateUser({
@@ -377,107 +378,84 @@ class UserQueries extends _$UserQueries {
     required String name,
     String? description,
   }) async {
-    final updateUserMutation =
-        await rootBundle.loadString(&#39;lib/graphql/update_user.graphql&#39;);
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final updateUserMutation =
+          await rootBundle.loadString(&#39;lib/graphql/update_user.graphql&#39;);
 
-    final MutationOptions options = MutationOptions(
-      document: gql(updateUserMutation),
-      variables: &lt;String, dynamic&gt;{
-        // the variable put here must match the query variable ($patch)
-        &#39;patch&#39;: {
-          &#39;filter&#39;: {
-            &#39;id&#39;: [id],
-          },
-          &#39;set&#39;: {
-            &#39;name&#39;: name,
-            &#39;description&#39;: description,
+      final MutationOptions options = MutationOptions(
+        document: gql(updateUserMutation),
+        variables: &lt;String, dynamic&gt;{
+          // the variable put here must match the query variable ($patch)
+          &#39;patch&#39;: {
+            &#39;filter&#39;: {
+              &#39;id&#39;: [id],
+            },
+            &#39;set&#39;: {
+              &#39;name&#39;: name,
+              &#39;description&#39;: description,
+            }
           }
-        }
-      },
-    );
+        },
+      );
 
-    final QueryResult result = await client.mutate(options);
+      final QueryResult result = await client.mutate(options);
 
-    if (result.isLoading &amp;&amp; result.data != null) {
-      status = &#39;Loading&#39;;
-    }
+      if (result.hasException) {
+        debugPrint(result.exception.toString());
+        throw result.exception!;
+      }
 
-    if (result.hasException) {
-      debugPrint(result.exception.toString());
-      status = &#39;Error (See Logs)&#39;;
-    }
+      debugPrint(&#39;UPDATED USER: ${result.data}&#39;);
 
-    debugPrint(&#39;UPDATED USER: ${result.data}&#39;);
+      final userJson = result.data?[&#39;updateUser&#39;][&#39;user&#39;][0];
 
-    final userJson = result.data?[&#39;updateUser&#39;][&#39;user&#39;][0];
+      debugPrint(&#39;UPDATED USER TRIM DOWN: $userJson&#39;);
 
-    debugPrint(&#39;UPDATED USER TRIM DOWN: $userJson&#39;);
-
-    final User user = User.fromJson(userJson);
-
-    status = &#39;Updated User&#39;;
-
-    state = state.copyWith(
-      id: user.id,
-      name: user.name,
-      description: user.description,
-    );
+      final user = User.fromJson(userJson);
+      return (user: user, status: &#39;Updated User&#39;);      
+    });
   }
 
   Future&lt;void&gt; getUser({required String id}) async {
-    final getUserQuery =
-        await rootBundle.loadString(&#39;lib/graphql/get_user.graphql&#39;);
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final getUserQuery =
+          await rootBundle.loadString(&#39;lib/graphql/get_user.graphql&#39;);
 
-    final QueryOptions options = QueryOptions(
-      document: gql(getUserQuery),
-      variables: &lt;String, dynamic&gt;{
-        // the variable put here must match the query variable ($userID)
-        &#39;userID&#39;: id
-      },
-    );
+      final QueryOptions options = QueryOptions(
+        document: gql(getUserQuery),
+        // this will ensure we do not use cached data
+        fetchPolicy: FetchPolicy.networkOnly,
+        variables: &lt;String, dynamic&gt;{
+          // the variable put here must match the query variable ($userID)
+          &#39;userID&#39;: id
+        },
+      );
 
-    final QueryResult result = await client.query(options);
+      final QueryResult result = await client.query(options);
 
-    if (result.isLoading &amp;&amp; result.data != null) {
-      status = &#39;Loading&#39;;
-    }
+      if (result.hasException) {
+        debugPrint(result.exception.toString());
+        throw result.exception!;
+      }
 
-    if (result.hasException) {
-      debugPrint(result.exception.toString());
-      status = &#39;Error (See Logs)&#39;;
-    }
+      debugPrint(&#39;GET USER: ${result.data}&#39;);
 
-    debugPrint(&#39;GET USER: ${result.data}&#39;);
+      final userJson = result.data?[&#39;getUser&#39;];
 
-    final userJson = result.data?[&#39;getUser&#39;];
+      debugPrint(&#39;GET USER TRIM DOWN: $userJson&#39;);
 
-    debugPrint(&#39;GET USER TRIM DOWN: $userJson&#39;);
-
-    final User user = User.fromJson(userJson);
-
-    status = &#39;Got User&#39;;
-
-    state = state.copyWith(
-      id: user.id,
-      name: user.name,
-      description: user.description,
-    );
+      final user = User.fromJson(userJson);
+      return (user: user, status: &#39;Got User&#39;);
+    });
   }
 }
-
 </code></pre>
 <p>For the <code>@freezed</code> annotation part, you declare the id, name and the nullable description(If you remember previously in your graphql schema, you had a nullable String type). Then added the <code>fromJson</code> to parse your json from the graphql requests.</p>
-<aside class="warning"><p> Don&#39;t forget to run <code>flutter pub run build_runner build -d</code> to build your generated code from the annotions or <code>flutter pub run build_runner watch -d</code> to listen for code changes each time.</p>
+<aside class="warning"><p> Don&#39;t forget to run <code>dart run build_runner build</code> to build your generated code from the annotions or <code>dart run build_runner watch</code> to listen for code changes each time.</p>
 </aside>
-<aside class="special"><p> It may be a good idea to exclude the analysis warnings from the generated code. You can do it by adding this code at the end of your <code>analysis_options.yaml</code> file:</p>
-</aside>
-<pre><code language="language-yaml" class="language-yaml">## ignore lint analysis on generated files
-analyzer:
-  exclude:
-    - &#34;**/*.g.dart&#34;
-    - &#34;**/*.freezed.dart&#34;
-</code></pre>
-<p>If I explain the code from the <code>@riverpod</code> annotation by taking the &#34;addUser&#34; method as example. You loaded the GraphQL query file into a string. You create and intialize a <code>MutationOptions</code> variable, <code>QueryOptions</code> if getting the <code>User</code>. In the <code>MutationOptions</code> arguments. You create a GraphQL document by passing your string to ‘gql&#39; special function. Then in your variables, you pass the json values to prepare for your request. In this case, that would be your name and description variable. When that part over, you can then call the request with <code>client.mutate</code> or <code>client.query</code> if getting the <code>User</code> passing along your options. Then you listen the results wether it is loading or having an exception. Finally you parse the json data with <code>userJson</code> and generate your <code>User</code> model that you will pass as your new state.</p>
+<p>If I explain the code from the <code>@riverpod</code> annotation by taking the &#34;addUser&#34; method as example. You change state of our information in which case it would be our user + our status to a loading one since we are returning a Future. then in our next state inside our <code>AsyncValue.guard</code> method, you load the GraphQL query file into a string. You create and intialize a <code>MutationOptions</code> variable, <code>QueryOptions</code> if getting the <code>User</code>. In the <code>MutationOptions</code> arguments. You create a GraphQL document by passing your string to ‘gql&#39; special function. Then in your variables, you pass the json values to prepare for your request. In this case, that would be your name and description variable. When that part over, you can then call the request with <code>client.mutate</code> or <code>client.query</code> if getting the <code>User</code> passing along your options. Then you wait for the results or check if we have an exception. Finally you parse the user json data with <code>userJson</code> and generate your <code>User</code> model along with our status that you will return to pass as your new state.</p>
 
 
       </google-codelab-step>
@@ -585,7 +563,6 @@ class UserFormFieldState extends ConsumerState&lt;UserFormField&gt; {
     );
   }
 }
-
 </code></pre>
 <ul>
 <li><code>user_view.dart</code></li>
@@ -596,8 +573,8 @@ import &#39;package:graphql_sample/view/user_form_fields.dart&#39;;
 
 import &#39;../model/user.dart&#39;;
 
-class HomeView extends StatelessWidget {
-  const HomeView({super.key});
+class UserView extends StatelessWidget {
+  const UserView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -617,36 +594,25 @@ class HomeView extends StatelessWidget {
           ),
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 2,
-                  child: TabBarView(
-                    children: [
-                      UserFormField(
-                        index: 0,
-                        name: queryNames[0],
-                      ),
-                      UserFormField(
-                        index: 1,
-                        name: queryNames[1],
-                      ),
-                      UserFormField(
-                        index: 2,
-                        name: queryNames[2],
-                      ),
-                      UserFormField(
-                        index: 3,
-                        name: queryNames[3],
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(),
-                const ResultWidget(),
-              ],
+          child: ListView(
+            physics: NeverScrollableScrollPhysics(
             ),
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 2,
+                child: TabBarView(
+                  children: [
+                    for (final (int index, String name) in queryNames.indexed)
+                      UserFormField(
+                        index: index,
+                        name: name,
+                      ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              const ResultWidget(),
+            ],
           ),
         ),
       ),
@@ -659,13 +625,22 @@ class ResultWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userQueriesProvider);
-    final String? status = ref.read(userQueriesProvider.notifier).status;
+    final userAsync = ref.watch(userQueriesProvider);
+
+    // this will return the status of our model method results
+    final String status = userAsync.when(
+      data: (data) =&gt; data.status,
+      error: (e, _) =&gt; &#39;Error (See Logs)&#39;,
+      loading: () =&gt; &#39;Loading&#39;,
+    );
+
+    final user = userAsync.value?.user ??
+        const User(id: &#39;null&#39;, name: &#39;null&#39;, description: &#39;null&#39;);
 
     return Column(
       children: [
         Text(
-          &#39;Status: ${status ?? &#39;null&#39;}&#39;,
+          &#39;Status: $status&#39;,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         Card(
@@ -690,7 +665,6 @@ class ResultWidget extends ConsumerWidget {
     );
   }
 }
-
 </code></pre>
 <p>The views are pretty straight forward but do take the time to understand them.</p>
 
@@ -709,14 +683,13 @@ class ResultWidget extends ConsumerWidget {
         <p>You started your own GraphQL server, built some queries along with linking the Flutter GraphQL client. You&#39;re on your way to your journey of being a full stack developer, now that you can handle both the backend and the frontend.</p>
 <h3 is-upgraded>References</h3>
 <p>Some references that help me with the contents of this codelab.</p>
-<p><a href="https://dgraph.io/blog/post/designing-graphql-schemas/" target="_blank">Designing Graphql Schema from Dgraph</a></p>
-<p><a href="https://dgraph.io/docs/graphql/schema/reserved/" target="_blank">Reserved Names in Dgraph</a></p>
+<p><a href="https://discuss.dgraph.io/t/designing-graphql-schemas-dgraph-blog/17578/1" target="_blank">Designing Graphql Schema from Dgraph</a></p>
+<p><a href="https://docs.dgraph.io/graphql/schema/reserved" target="_blank">Reserved Names in Dgraph</a></p>
 <p><a href="https://graphql.org/learn/queries/#variables" target="_blank">GraphQL Variables for Clients</a></p>
-<p><a href="https://dgraph.io/docs/dgraphcloud/cloud-api/schema/#get-schema" target="_blank">Get the Generated Schema in Dgraph</a></p>
-<p><a href="https://dgraph.io/docs/graphql/mutations/update/" target="_blank">Update Mutation in Draph</a></p>
+<p><a href="https://docs.dgraph.io/graphql/mutations/update/" target="_blank">Update Mutation in Draph</a></p>
 <p><a href="https://dev.to/tusharsadhwani/connecting-android-apps-to-localhost-simplified-57lm#the-correct-easy-way" target="_blank">Setup Localhost in Android</a></p>
 <h3 is-upgraded>Feedback</h3>
-<p>This codelab may have some issues and to me this is only a draft, they are improvements that can be done. If you found a problem or have suggestions, you can click the <code>report a mistake</code> on the bottom left of the codelab it will open a github issue.</p>
+<p>This codelab may have some issues and is only a draft; there are improvements that can be done. If you find a problem or have suggestions, you can click <code>Report a mistake</code> at the bottom left of the codelab. It will open a GitHub issue.</p>
 
 
       </google-codelab-step>
